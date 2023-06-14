@@ -1,0 +1,29 @@
+def find_cheapest_plan_with_pruning(join_graph:JoinGraph, cost_fn):
+
+    def is_cartesian_product(relations):
+        # Check if the product of relation sizes equals the total size
+        # print(relations)
+        total_size = sum(relation.size for relation in relations)
+        product_sizes = 1
+        for relation in relations:
+            product_sizes *= relation.size
+        return total_size != product_sizes
+
+    # Extract the relation names
+    relations = list(join_graph.named_relations.values())
+
+    least_cost = math.inf
+    cheapest_plan = None
+
+    # Do not consider all possible permutations (of which there are $n!$)!!!
+    for perm in itertools.permutations(relations):
+
+        if is_cartesian_product(perm):
+            continue
+
+        cost = compute_cost(perm, join_graph, cost_fn)
+        if cost < least_cost:
+            least_cost = cost
+            cheapest_plan = perm
+
+    return cheapest_plan

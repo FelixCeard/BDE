@@ -1,0 +1,67 @@
+# Upload the contents of this cell to our CMS as a text file
+
+class Structure:
+    def __init__(self):
+        self.indices = set()
+        self.children = {}
+
+    def update(self, string, index):
+        # print('Adding', string)
+        self.indices.add(index)
+        if len(string) == 0:
+            return len(self.indices)
+
+        # expand children
+        if self.children.get('a') is None:
+            for i in range(26):
+                self.children[chr(97+i)] = Structure()
+
+
+        return self.children[string[0]].update(string[1:], index)
+
+    def start_search(self, string):
+        if string == '':
+            return set()
+        return self.search(string)
+
+    def search(self, string):
+        if len(string) == 0:
+            return self.indices
+
+        if len(self.children) == 0:
+            return set()
+
+        if self.children.get(string[0]) is None:
+            return set()
+
+        return self.children[string[0]].search(string[1:])
+
+    def __str__(self):
+        return f"{{indices: {self.indices}, {self.children}}}"
+
+
+
+# A class implementing a recursive, inverted index
+class RecursiveInvertedIndex:
+    # document_names: Names of the documents to be put in the index
+    def __init__(self, document_names):
+        # Add your code here!
+        # ...
+        # You should initialise your recursive, inverted index here. Note that your words must be radix-partitioned.
+
+        self.document_names = document_names
+        self.data = Structure()
+        self.init_structure()
+
+    def init_structure(self):
+        # create data structure
+        for i, name in enumerate(self.document_names):
+            for word in get_words_from_document(name):
+                self.data.update(word, name)
+
+    def search(self, word):
+        # Add your code here!
+        # ...
+        # This function should return the set of all matching documents. A matching document either contains exactly the search word or
+        # a word that starts with the given search word (or both).
+        return self.data.start_search(word.lower())
